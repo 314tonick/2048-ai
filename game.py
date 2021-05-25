@@ -71,10 +71,10 @@ def move_right():
     cop = grid.copy()
     del_spaces()
     for i in range(n):
-        for j in range(len(grid[i]) - 1):
+        for j in range(len(grid[i]) - 2, -1, -1):
             if grid[i][j] == grid[i][j + 1]:
-                grid[i][j] *= 2
-                grid[i][j + 1] = 0
+                grid[i][j + 1] *= 2
+                grid[i][j] = 0
     del_spaces()
     # Filling:
     for i in range(n):
@@ -94,10 +94,10 @@ def move_down():
 
     del_spaces()
     for i in range(n):
-        for j in range(len(grid[i]) - 1):
+        for j in range(len(grid[i]) - 2, -1, -1):
             if grid[i][j] == grid[i][j + 1]:
-                grid[i][j] *= 2
-                grid[i][j + 1] = 0
+                grid[i][j+1] *= 2
+                grid[i][j] = 0
     del_spaces()
     # Filling:
     for i in range(n):
@@ -132,9 +132,16 @@ images = {2 ** i: pygame.transform.scale(pygame.image.load(f'{2 ** i}.png'), (40
           range(1, 22)}
 images[0] = pygame.transform.scale(pygame.image.load('0.png'), (400 // 21 * 4, 400 // 21 * 4))
 n = 4  # Size of the grid.
-grid = [[0] * n for _ in range(n)]
-add_number()
-add_number()
+# grid = [[0] * n for _ in range(n)]
+# add_number()
+# add_number()
+grid = [
+    [2, 2, 8, 0],
+    [2, 2, 4, 0],
+    [4, 2, 2, 0],
+    [8, 0, 2, 0],
+]
+grid.reverse()
 pygame.init()
 screen = pygame.display.set_mode((500, 500))
 field = pygame.transform.scale(pygame.image.load(f'field{n}.png'), (400, 400))
