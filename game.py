@@ -52,7 +52,7 @@ def del_spaces():
 
 
 def move_left():
-    cop = grid.copy()
+    cop = [line.copy() for line in grid]
     del_spaces()
     for i in range(n):
         for j in range(len(grid[i]) - 1):
@@ -68,7 +68,7 @@ def move_left():
 
 
 def move_right():
-    cop = grid.copy()
+    cop = [line.copy() for line in grid]
     del_spaces()
     for i in range(n):
         for j in range(len(grid[i]) - 2, -1, -1):
@@ -80,7 +80,11 @@ def move_right():
     for i in range(n):
         grid[i] = [0] * (n - len(grid[i])) + grid[i].copy()
     if cop != grid:
+        print(cop, grid)
+        print('start add')
         add_number()
+        print('end add')
+
 
 
 def transpose_array(lst: list):
@@ -89,7 +93,7 @@ def transpose_array(lst: list):
 
 def move_down():
     global grid
-    cop = grid.copy()
+    cop = [line.copy() for line in grid]
     grid = transpose_array(grid)
 
     del_spaces()
@@ -110,7 +114,7 @@ def move_down():
 def move_up():
     global grid
 
-    cop = grid.copy()
+    cop = [line.copy() for line in grid]
     grid = transpose_array(grid)
 
     del_spaces()
@@ -136,10 +140,10 @@ n = 4  # Size of the grid.
 # add_number()
 # add_number()
 grid = [
-    [2, 2, 8, 0],
-    [2, 2, 4, 0],
-    [4, 2, 2, 0],
-    [8, 0, 2, 0],
+    [0, 0, 0, 2],
+    [0, 0, 0, 2],
+    [0, 0, 0, 2],
+    [0, 0, 0, 2],
 ]
 grid.reverse()
 pygame.init()
