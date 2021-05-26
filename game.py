@@ -1,7 +1,29 @@
-from constants import *
+from constants import THEME, COORD, BEST, set_value
 import pygame
 
 import random
+
+
+def is_loose():
+    global count
+    global grid
+
+    c = count
+    copy0 = [line.copy() for line in grid]
+    move_left()
+    copy1 = [line.copy() for line in grid]
+    move_right()
+    copy2 = [line.copy() for line in grid]
+    move_down()
+    copy3 = [line.copy() for line in grid]
+    move_up()
+    copy4 = [line.copy() for line in grid]
+    if copy0 == copy1 and copy0 == copy2 and copy0 == copy3 and copy0 == copy4:
+        return True
+    else:
+        count = c
+        grid = copy0
+        return False
 
 
 def print_grid():
@@ -149,16 +171,18 @@ n = 4  # Size of the grid.
 # add_number()
 # add_number()
 grid = [
-    [0, 0, 0, 2],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
+    [4, 2, 4, 2],
+    [2, 4, 2, 4],
+    [4, 2, 16, 8],
+    [2**20, 4, 128, 16],
 ]
 count_image, best_image, restart_image, settings_image = \
     pygame.image.load(f'{THEME}_theme\\count.png'), pygame.image.load(f'{THEME}_theme\\best.png'), \
     pygame.image.load(f'{THEME}_theme\\restart.png'), pygame.image.load(f'{THEME}_theme\\settings.png')
 pygame.init()
 count = 0
+background_when_loose = pygame.Surface((500, 675), pygame.SRCALPHA)
+background_when_loose.fill((100, 100, 100, 100))
 font = pygame.font.SysFont('Consolas', 50)
 screen = pygame.display.set_mode((500, 675))
 field_surface = pygame.Surface((500, 500))
@@ -168,6 +192,11 @@ while True:
         if e.type == pygame.QUIT:
             set_value('BEST', BEST)
             exit()
+        if e.type == pygame.KEYUP and is_loose():
+            grid = [[0] * n for _ in range(n)]
+            add_number()
+            add_number()
+            count = 0
         if e.type == pygame.KEYUP and e.key == pygame.K_UP:
             move_up()
         if e.type == pygame.KEYUP and e.key == pygame.K_DOWN:
@@ -176,13 +205,12 @@ while True:
             move_left()
         if e.type == pygame.KEYUP and e.key == pygame.K_RIGHT:
             move_right()
-        # if e.type == pygame.KEYDOWN and pygame.key.get_pressed()[pygame.K_a] and \
-        #         pygame.key.get_pressed()[pygame.K_d] and \
-        #         pygame.key.get_pressed()[pygame.K_5] and \
-        #         pygame.key.get_pressed()[pygame.K_1] and \
-        #         pygame.key.get_pressed()[pygame.K_2]:
-        #     print('DONE')
-        #     add_number([512])
+        if e.type == pygame.MOUSEBUTTONUP and pygame.rect.Rect((405, 25, 65, 65)).collidepoint(pygame.mouse.get_pos()) \
+                or e.type == pygame.KEYUP and e.key == pygame.K_r:
+            grid = [[0] * n for _ in range(n)]
+            add_number()
+            add_number()
+            count = 0
     screen.fill((0, 0, 0))
     field_surface.blit(field, (50, 50))
     BEST = max(BEST, count)
@@ -193,6 +221,7 @@ while True:
     screen.blit(best_image, COORD['best'])
     screen.blit(restart_image, COORD['restart'])
     screen.blit(settings_image, COORD['settings'])
-
     screen.blit(field_surface, (0, 175))
+    if is_loose():
+        screen.blit(background_when_loose, (0, 0))
     pygame.display.flip()
