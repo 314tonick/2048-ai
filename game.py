@@ -1,3 +1,4 @@
+from constants import *
 import pygame
 
 import random
@@ -13,8 +14,8 @@ def print_grid():
 def draw_grid():
     for y in range(n):
         for x in range(n):
-            screen.blit(images[grid[y][x]],
-                        (50 + 400 / 21 * (x + 1) + 400 / 21 * 4 * x, 50 + 400 / 21 * (y + 1) + 400 / 21 * 4 * y))
+            field_surface.blit(images[grid[y][x]],
+                               (50 + 400 / 21 * (x + 1) + 400 / 21 * 4 * x, 50 + 400 / 21 * (y + 1) + 400 / 21 * 4 * y))
 
 
 def list_sum(lst: list):
@@ -52,11 +53,13 @@ def del_spaces():
 
 
 def move_left():
+    global count
     cop = [line.copy() for line in grid]
     del_spaces()
     for i in range(n):
         for j in range(len(grid[i]) - 1):
             if grid[i][j] == grid[i][j + 1]:
+                count += grid[i][j] * 2
                 grid[i][j] *= 2
                 grid[i][j + 1] = 0
     del_spaces()
@@ -68,11 +71,14 @@ def move_left():
 
 
 def move_right():
+    global count
+
     cop = [line.copy() for line in grid]
     del_spaces()
     for i in range(n):
         for j in range(len(grid[i]) - 2, -1, -1):
             if grid[i][j] == grid[i][j + 1]:
+                count += grid[i][j] * 2
                 grid[i][j + 1] *= 2
                 grid[i][j] = 0
     del_spaces()
@@ -80,11 +86,7 @@ def move_right():
     for i in range(n):
         grid[i] = [0] * (n - len(grid[i])) + grid[i].copy()
     if cop != grid:
-        print(cop, grid)
-        print('start add')
         add_number()
-        print('end add')
-
 
 
 def transpose_array(lst: list):
@@ -93,6 +95,7 @@ def transpose_array(lst: list):
 
 def move_down():
     global grid
+    global count
     cop = [line.copy() for line in grid]
     grid = transpose_array(grid)
 
@@ -100,7 +103,8 @@ def move_down():
     for i in range(n):
         for j in range(len(grid[i]) - 2, -1, -1):
             if grid[i][j] == grid[i][j + 1]:
-                grid[i][j+1] *= 2
+                count += grid[i][j] * 2
+                grid[i][j + 1] *= 2
                 grid[i][j] = 0
     del_spaces()
     # Filling:
@@ -112,6 +116,7 @@ def move_down():
 
 
 def move_up():
+    global count
     global grid
 
     cop = [line.copy() for line in grid]
@@ -121,6 +126,7 @@ def move_up():
     for i in range(n):
         for j in range(len(grid[i]) - 1):
             if grid[i][j] == grid[i][j + 1]:
+                count += grid[i][j] * 2
                 grid[i][j] *= 2
                 grid[i][j + 1] = 0
     del_spaces()
@@ -132,26 +138,35 @@ def move_up():
         add_number()
 
 
-images = {2 ** i: pygame.transform.scale(pygame.image.load(f'{2 ** i}.png'), (400 // 21 * 4, 400 // 21 * 4)) for i in
-          range(1, 22)}
-images[0] = pygame.transform.scale(pygame.image.load('0.png'), (400 // 21 * 4, 400 // 21 * 4))
+images = {
+    2 ** i: pygame.transform.scale(pygame.image.load(f'{THEME}_theme\\{2 ** i}.png'), (400 // 21 * 4, 400 // 21 * 4))
+    for i in
+    range(1, 22)}
+print('{THEME}_theme\\0.png')
+images[0] = pygame.transform.scale(pygame.image.load(f'{THEME}_theme\\0.png'), (400 // 21 * 4, 400 // 21 * 4))
 n = 4  # Size of the grid.
 # grid = [[0] * n for _ in range(n)]
 # add_number()
 # add_number()
 grid = [
     [0, 0, 0, 2],
-    [0, 0, 0, 2],
-    [0, 0, 0, 2],
-    [0, 0, 0, 2],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
 ]
-grid.reverse()
+count_image, best_image, restart_image, settings_image = \
+    pygame.image.load(f'{THEME}_theme\\count.png'), pygame.image.load(f'{THEME}_theme\\best.png'), \
+    pygame.image.load(f'{THEME}_theme\\restart.png'), pygame.image.load(f'{THEME}_theme\\settings.png')
 pygame.init()
-screen = pygame.display.set_mode((500, 500))
-field = pygame.transform.scale(pygame.image.load(f'field{n}.png'), (400, 400))
+count = 0
+font = pygame.font.SysFont('Consolas', 50)
+screen = pygame.display.set_mode((500, 675))
+field_surface = pygame.Surface((500, 500))
+field = pygame.transform.scale(pygame.image.load(f'{THEME}_theme\\field{n}.png'), (400, 400))
 while True:
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
+            set_value('BEST', BEST)
             exit()
         if e.type == pygame.KEYUP and e.key == pygame.K_UP:
             move_up()
@@ -161,14 +176,23 @@ while True:
             move_left()
         if e.type == pygame.KEYUP and e.key == pygame.K_RIGHT:
             move_right()
-        if e.type == pygame.KEYDOWN and pygame.key.get_pressed()[pygame.K_a] and \
-                pygame.key.get_pressed()[pygame.K_d] and \
-                pygame.key.get_pressed()[pygame.K_5] and \
-                pygame.key.get_pressed()[pygame.K_1] and \
-                pygame.key.get_pressed()[pygame.K_2]:
-            print('DONE')
-            add_number([512])
-
-    screen.blit(field, (50, 50))
+        # if e.type == pygame.KEYDOWN and pygame.key.get_pressed()[pygame.K_a] and \
+        #         pygame.key.get_pressed()[pygame.K_d] and \
+        #         pygame.key.get_pressed()[pygame.K_5] and \
+        #         pygame.key.get_pressed()[pygame.K_1] and \
+        #         pygame.key.get_pressed()[pygame.K_2]:
+        #     print('DONE')
+        #     add_number([512])
+    screen.fill((0, 0, 0))
+    field_surface.blit(field, (50, 50))
+    BEST = max(BEST, count)
     draw_grid()
+    screen.blit(font.render(str(count), True, (0, 255, 0)), (230, 35))
+    screen.blit(count_image, COORD['count'])
+    screen.blit(font.render(str(BEST), True, (255, 0, 0)), (230, 115))
+    screen.blit(best_image, COORD['best'])
+    screen.blit(restart_image, COORD['restart'])
+    screen.blit(settings_image, COORD['settings'])
+
+    screen.blit(field_surface, (0, 175))
     pygame.display.flip()
