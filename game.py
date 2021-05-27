@@ -181,9 +181,10 @@ count_image, best_image, restart_image, settings_image = \
     pygame.image.load(f'{THEME}_theme\\restart.png'), pygame.image.load(f'{THEME}_theme\\settings.png')
 pygame.init()
 count = 0
+font = pygame.font.SysFont('Consolas', 50, bold=True)
 background_when_loose = pygame.Surface((500, 675), pygame.SRCALPHA)
-background_when_loose.fill((100, 100, 100, 100))
-font = pygame.font.SysFont('Consolas', 50)
+background_when_loose.fill((100, 100, 100, 200))
+background_when_loose.blit(font.render('YOU LOOSE!', True, (0, 0, 0, 200)), (120, 300))
 screen = pygame.display.set_mode((500, 675))
 field_surface = pygame.Surface((500, 500))
 field = pygame.transform.scale(pygame.image.load(f'{THEME}_theme\\field{n}.png'), (400, 400))
@@ -219,9 +220,10 @@ while True:
     screen.blit(count_image, COORD['count'])
     screen.blit(font.render(str(BEST), True, (255, 0, 0)), (230, 115))
     screen.blit(best_image, COORD['best'])
-    screen.blit(restart_image, COORD['restart'])
     screen.blit(settings_image, COORD['settings'])
     screen.blit(field_surface, (0, 175))
     if is_loose():
         screen.blit(background_when_loose, (0, 0))
+    screen.blit(restart_image, COORD['restart'])
+
     pygame.display.flip()
